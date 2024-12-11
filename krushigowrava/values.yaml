@@ -1,0 +1,104 @@
+# Global configurations
+global:
+  environment: production
+
+# Frontend Service
+frontend:
+  replicaCount: 2
+  image:
+    repository: eagleeye007/bazooka
+    tag: latest  # Consider using a specific version tag
+    pullPolicy: Always
+  service:
+    type: LoadBalancer
+    port: 3000
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+
+# OAuth Service
+oauth:
+  replicaCount: 2
+  image:
+    repository: eagleeye007/kauthentication
+    tag: latest  # Consider using a specific version tag
+    pullPolicy: Always
+  service:
+    type: LoadBalancer
+    port: 3001
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+  metrics:
+    enabled: true
+
+# Products Service
+products:
+  replicaCount: 2
+  image:
+    repository: eagleeye007/kshopee
+    tag: latest  # Consider using a specific version tag
+    pullPolicy: Always
+  service:
+    type: LoadBalancer
+    port: 3002
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+  metrics:
+    enabled: true
+
+# Monitoring Configurations
+prometheus:
+  enabled: true
+  replicaCount: 1
+  service:
+    type: LoadBalancer
+    port: 9090
+  resources:
+    requests:
+      cpu: 200m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+grafana:
+  enabled: true
+  replicaCount: 1
+  service:
+    type: LoadBalancer
+    port: 8080
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+  # IMPORTANT: In production, use a more secure method to manage passwords
+  # Consider using Kubernetes secrets or external secret management
+  adminPassword: "krushigowrava2024!"  # CHANGE THIS!
+
+# Monitoring Service Configurations
+serviceMonitor:
+  enabled: true
+
+# Additional Environment Variables (if needed)
+# You can add common environment variables here that apply to all services
+commonEnv:
+  # Example:
+  # DEBUG: "true"
+  # LOG_LEVEL: "info"

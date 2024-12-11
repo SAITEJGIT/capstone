@@ -1,0 +1,109 @@
+{{- if .Values.grafana.enabled }}
+{{- /* Grafana ConfigMap for Datasources */ -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-grafana-datasources
+data:
+  datasources.yaml: |
+    apiVersion: 1
+    datasources:
+    - name: Prometheus
+      type: prometheus
+      url: http://{{ .Release.Name }}-prometheus-service:9090
+      access: proxy
+      isDefault: true
+
+---
+{{- /* Grafana ConfigMap for Dashboard Providers */ -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-grafana-dashboards
+data:
+  dashboards.yaml: |
+    apiVersion: 1
+    providers:
+    - name: 'default'
+      orgId: 1
+      folder: ''
+      type: file
+      disableDeletion: false
+      editable: true
+      options:
+        path: /var/lib/grafana/dashboards
+
+---
+{{- /* Grafana Deployment */ -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-grafana
+  labels:
+    app: grafana
+    release: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.grafana.replicaCount }}
+  selector:
+    matchLabels:
+      app: grafana
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: grafana
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+      - name: grafana
+        image: grafana/grafana:8.2.5
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            cpu: {{ .Values.grafana.resources.requests.cpu }}
+            memory: {{ .Values.grafana.resources.requests.memory }}
+          limits:
+            cpu: {{ .Values.grafana.resources.limits.cpu }}
+            memory: {{ .Values.grafana.resources.limits.memory }}
+        env:
+        - name: GF_SECURITY_ADMIN_PASSWORD
+          value: {{ .Values.grafana.adminPassword }}
+        volumeMounts:
+        - name: datasources
+          mountPath: /etc/grafana/provisioning/datasources
+          readOnly: true
+        - name: dashboards-config
+          mountPath: /etc/grafana/provisioning/dashboards
+          readOnly: true
+        # You can add more dashboard JSON files here if needed
+        # - name: dashboards
+        #   mountPath: /var/lib/grafana/dashboards
+        #   readOnly: true
+      volumes:
+      - name: datasources
+        configMap:
+          name: {{ .Release.Name }}-grafana-datasources
+      - name: dashboards-config
+        configMap:
+          name: {{ .Release.Name }}-grafana-dashboards
+
+---
+{{- /* Grafana Service */ -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-grafana-service
+  labels:
+    app: grafana
+    release: {{ .Release.Name }}
+spec:
+  type: {{ .Values.grafana.service.type }}
+  ports:
+  - port: {{ .Values.grafana.service.port }}
+    targetPort: 8080
+    protocol: TCP
+  selector:
+    app: grafana
+    release: {{ .Release.Name }}
+{{- end }}

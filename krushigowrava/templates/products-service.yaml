@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-products-service
+  labels:
+    app: products
+    release: {{ .Release.Name }}
+spec:
+  type: {{ .Values.products.service.type }}
+  ports:
+  - port: {{ .Values.products.service.port }}
+    targetPort: 3002
+    protocol: TCP
+  selector:
+    app: products
+    release: {{ .Release.Name }}

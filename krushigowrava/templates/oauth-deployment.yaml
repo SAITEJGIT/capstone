@@ -1,0 +1,40 @@
+{{- /* OAuth Deployment */ -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-oauth
+  labels:
+    app: oauth
+    release: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.oauth.replicaCount }}
+  selector:
+    matchLabels:
+      app: oauth
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: oauth
+        release: {{ .Release.Name }}
+      annotations:
+        prometheus.io/scrape: "{{ .Values.oauth.metrics.enabled }}"
+        prometheus.io/port: "3001"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+      - name: oauth
+        image: "{{ .Values.oauth.image.repository }}:{{ .Values.oauth.image.tag }}"
+        imagePullPolicy: {{ .Values.oauth.image.pullPolicy }}
+        ports:
+        - containerPort: 3001
+        resources:
+          requests:
+            cpu: {{ .Values.oauth.resources.requests.cpu }}
+            memory: {{ .Values.oauth.resources.requests.memory }}
+          limits:
+            cpu: {{ .Values.oauth.resources.limits.cpu }}
+            memory: {{ .Values.oauth.resources.limits.memory }}
+        env:
+        - name: ENVIRONMENT
+          value: {{ .Values.global.environment }}

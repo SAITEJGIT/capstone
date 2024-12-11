@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-oauth-service
+  labels:
+    app: oauth
+    release: {{ .Release.Name }}
+spec:
+  type: {{ .Values.oauth.service.type }}
+  ports:
+  - port: {{ .Values.oauth.service.port }}
+    targetPort: 3001
+    protocol: TCP
+  selector:
+    app: oauth
+    release: {{ .Release.Name }}

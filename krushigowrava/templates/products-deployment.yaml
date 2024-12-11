@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-products
+  labels:
+    app: products
+    release: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.products.replicaCount }}
+  selector:
+    matchLabels:
+      app: products
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: products
+        release: {{ .Release.Name }}
+      annotations:
+        prometheus.io/scrape: "{{ .Values.products.metrics.enabled }}"
+        prometheus.io/port: "3002"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+      - name: products
+        image: "{{ .Values.products.image.repository }}:{{ .Values.products.image.tag }}"
+        imagePullPolicy: {{ .Values.products.image.pullPolicy }}
+        ports:
+        - containerPort: 3002
+        resources:
+          requests:
+            cpu: {{ .Values.products.resources.requests.cpu }}
+            memory: {{ .Values.products.resources.requests.memory }}
+          limits:
+            cpu: {{ .Values.products.resources.limits.cpu }}
+            memory: {{ .Values.products.resources.limits.memory }}
+        env:
+        - name: ENVIRONMENT
+          value: {{ .Values.global.environment }}
