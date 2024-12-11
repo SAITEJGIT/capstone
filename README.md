@@ -245,5 +245,5 @@ Special thanks to the open-source community and the following technologies:
 
 For questions or support, please open an issue on the GitHub repository.
 
-Project Link: [https://github.com/gani-23/summit](https://github.com/gani-23/summit/projectfiles/krushigowrava)
+Project Link: [https://github.com/SAITEJGIT/capstone](https://github.com/SAITEJGIT/capstone/projectfiles/krushigowrava)
 
